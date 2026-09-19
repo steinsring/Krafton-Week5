@@ -46,7 +46,7 @@ typedef struct Widget Widget;
 
 typedef struct {
     void (*render)(Widget *self);
-    void (*on_event)(Widget *self, int code);
+    int (*on_event)(Widget *self, int code);
 } VTable;
 
 struct Widget {
@@ -73,10 +73,10 @@ static void dialog_render(Widget *self) {
     printf("  <<Dialog #%d>> %s\n", self->id, self->label);
 }
 
-static void widget_noop_event(Widget *self, int code) { (void)self; (void)code; }
+static int widget_noop_event(Widget *self, int code) { (void)self; (void)code; return 0;}
 
 /* 다이얼로그는 이벤트 코드 1(닫기)을 받으면 스스로 정리(파괴)된다 */
-static void dialog_on_event(Widget *self, int code);
+static int dialog_on_event(Widget *self, int code);
 
 static const VTable BUTTON_VT = { button_render, widget_noop_event };
 static const VTable LABEL_VT  = { label_render,  widget_noop_event };
@@ -102,7 +102,7 @@ static Widget *widget_new(const VTable *vt, int id, const char *label) {
 }
 
 static void widget_destroy(Widget *w) {
-    free(w);          
+    free(w);
 }
 
 /* ── Screen ──────────────────────────────────────────────────── */
@@ -113,22 +113,34 @@ static void screen_add(Screen *s, Widget *w) {
 static void screen_dispatch(Screen *s, int code) {
     for (int i = 0; i < s->count; i++) {
         Widget *w = s->items[i];
-        w->vtbl->on_event(w, code);
+        if(w)
+        {
+            //if (w->id == 12)  // 함수 포인터 비교로 해결?
+            if(w->vtbl->on_event(w, code))
+            {
+                s->items[i] = NULL;
+            }
+        }
     }
 }
 
 static void screen_render(Screen *s) {
     for (int i = 0; i < s->count; i++) {
         Widget *w = s->items[i];
-        w->vtbl->render(w);      
+        if(w)
+        {
+            w->vtbl->render(w);      
+        }
     }
 }
 
-static void dialog_on_event(Widget *self, int code) {
+static int dialog_on_event(Widget *self, int code) {
     if (code == 1) {
         self->closed = 1;
         widget_destroy(self);   
+        return 1;
     }
+    return 0;
 }
 
 static char *app_build_status(const char *text) {
@@ -148,21 +160,23 @@ static char *app_build_status(const char *text) {
 int main(void) {
     Screen s = { .count = 0 };
 
+    // 위젯 생성
     screen_add(&s, widget_new(&LABEL_VT,  10, "Welcome"));
     screen_add(&s, widget_new(&BUTTON_VT, 11, "OK"));
     screen_add(&s, widget_new(&DIALOG_VT, 12, "Are you sure?"));  /* items[2] */
     screen_add(&s, widget_new(&BUTTON_VT, 13, "Cancel"));
 
     printf("frame 1:\n");
+    // 위젯 표시
     screen_render(&s);
+    // 위젯 이벤트 트리거
     screen_dispatch(&s, 1);
-
-    /* TODO 닫힌(closed) 위젯을 여기서 정리(free + 해당 슬롯 NULL)할 필요가 있음 */
 
     char *status = app_build_status("dialog closed");
     printf("%s\n", status);
 
     printf("frame 2:\n");
+    // 위젯 표시
     screen_render(&s);           
 
     free(status);
