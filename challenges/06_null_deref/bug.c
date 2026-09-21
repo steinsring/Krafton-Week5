@@ -49,9 +49,18 @@ static void parse_headers(char *text, Headers *h) {
     for (char *line = strtok(text, "\n"); line != NULL; line = strtok(NULL, "\n")) {
         char *colon = strchr(line, ':');   
 
-        *colon = '\0';                    
-        char *key = line;
-        char *val = skip_ws(colon + 1);
+        char *key;
+        char *val;
+        if(colon != NULL)
+        {
+            *colon = '\0';                    
+            key = line;
+            val = skip_ws(colon + 1);
+        }
+        else
+        {
+            continue;
+        }
 
         if (h->count < MAX_HEADERS) {
             h->keys[h->count] = key;

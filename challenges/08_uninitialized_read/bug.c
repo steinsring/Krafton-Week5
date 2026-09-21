@@ -76,10 +76,13 @@ static int **make_matrix(void) {
     int **rows = malloc(ROWS * sizeof(int *));
     if (!rows) { perror("malloc"); exit(1); }
 
+    // 0으로 초기화
+    for (int i = 0; i < ROWS; i++) {
+        rows[i] = calloc(COLS , sizeof(int));
+    }
+
     for (int i = 0; i < ROWS; i += 2) {
-        int *r = malloc(COLS * sizeof(int));
-        for (int j = 0; j < COLS; j++) r[j] = i * COLS + j;
-        rows[i] = r;
+        for (int j = 0; j < COLS; j++) rows[i][j] = i * COLS + j;
     }
     return rows;
 }
