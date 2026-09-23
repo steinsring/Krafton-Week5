@@ -60,7 +60,7 @@ static void audit_add(Audit *a, int id) {
 }
 
 static Job *push_job(Job *head, int id, int priority) {
-    Job *n = malloc(sizeof *n);
+    Job *n = malloc(sizeof *n); // *n은 Job과 같다.
     if (!n) { perror("malloc"); exit(1); }
     n->id = id;
     n->priority = priority;
@@ -77,11 +77,13 @@ static Job *filter_jobs(Job *head, int threshold, Audit *audit) {
     Job *keep = NULL, *keep_tail = NULL;
     Job *cur = head;
 
+    Job *temp;
     while (cur != NULL) {
         if (cur->priority < threshold) {
-            audit_add(audit, cur->id);   
-            job_release(cur);            
-            cur = cur->next;             
+            audit_add(audit, cur->id);
+            temp = cur;  
+            cur = cur->next; 
+            job_release(temp);            
         } else {
             Job *nx = cur->next;
             cur->next = NULL;
