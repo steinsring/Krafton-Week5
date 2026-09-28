@@ -66,6 +66,7 @@ static User *login(int uid, const char *name) {
 
 static void logout(Session *s) {
     free(s->user);         
+    s->user = NULL;
 }
 
 /* 감사 로그 항목. User 와 같은 크기라 해제된 청크를 재사용하기 쉽다. */
@@ -78,8 +79,8 @@ static char *audit_record(const char *event) {
 }
 
 static int handle_request(Session *s, const char *action) {
-
-    return s->user->permission(action);    
+    if (s->user)  return s->user->permission(action);    
+    return NULL;
 }
 
 int main(void) {

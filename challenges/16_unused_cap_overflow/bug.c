@@ -45,11 +45,15 @@ static void append_field(char *buf, size_t cap, size_t *len, const char *field, 
         buf[(*len)++] = sep;             
     }
     size_t flen = strlen(field);
+    if (*len + flen > cap)
+    {
+        return;
+    }
     for (size_t i = 0; i < flen; i++) {
         buf[(*len)++] = field[i];         
     }
     buf[*len] = '\0';
-    (void)cap;                            
+    //(void)cap;                            
 }
 
 static void build_record(char *rec, size_t cap) {

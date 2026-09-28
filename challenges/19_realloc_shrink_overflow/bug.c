@@ -62,7 +62,7 @@ static void signal_trim(Signal *s, size_t keep) {
 
 static double signal_energy(const Signal *s) {
     double e = 0.0;
-    for (size_t i = 0; i < s->len; i++) {   
+    for (size_t i = 0; i < s->cap; i++) {   
         e += s->samples[i] * s->samples[i];
     }
     return e;
