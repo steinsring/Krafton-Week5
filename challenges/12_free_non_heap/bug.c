@@ -48,7 +48,7 @@
  *               코드가 동작한다. 그런데 왜 C 표준(C11)과 POSIX 를 굳이 구분할까?
  *   생각해보기 2 (버전 관리 관점): 왜 "쓸 수 있는 표준 버전"을 코드가 스스로 선언하게 할까?
  *               (숫자 200809L = 표준의 '연-월' 버전. 값이 클수록 더 최신 표준) */
-#define _POSIX_C_SOURCE 200809L
+//#define _POSIX_C_SOURCE 200809L
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
